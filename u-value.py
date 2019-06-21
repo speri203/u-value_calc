@@ -1,6 +1,7 @@
 import csv
 import sys
 import os
+import json
 
 #Global variables to hold arguements/fetch data from the CSV file
 filePath = ''
@@ -40,6 +41,64 @@ def loadData():
     indoor_temperature = kelvinConvert(sys.argv[3])
     wind_speed = float(sys.argv[2]) * .44704
 
+def loadJSONData(filePath):
+    global emissivity, atmosphere_temperature, pixil_temperature
+    with open("DJI_0010.jpg.json", "r") as read_file:
+        data = json.load(read_file)
+        for entry in data['objects']: #Entry holds each dictionary between each description tags
+            '''
+            The layout of each dictionary is as follows
+            Windows: description, bitmap, tags, classTitle, points{exterior, interior}
+            LAMP: description, bitmap, tags, classTitle, points{exterior, interior}
+            Ground: description, bitmap, tags, classTitle, points{exterior: [], interior}
+            Door: description, bitmap, tags, classTitle, points{exterior: [], interior}
+            '''
+            if(entry['classTitle'] == 'Window'):
+                points = entry['points']
+                exterior = (points['exterior'])
+                x1 = exterior[0][0]
+                y1 = exterior[0][1]
+                x2 = exterior[1][0]
+                y2 = exterior[1][1]
+
+                total = 0
+                for x in range(x1, x2):
+                    for y in range(y1, y2):
+                        total += 1
+
+                print("Window: X: {} Y: {}, X2: {} Y2:{} Total: {}". format(x1,y1,x2,y2, total))
+
+            if(entry['classTitle'] == 'LAMP'):
+                points = entry['points']
+                exterior = (points['exterior'])
+                x1 = exterior[0][0]
+                y1 = exterior[0][1]
+                x2 = exterior[1][0]
+                y2 = exterior[1][1]
+
+                total = 0
+                for x in range(x1, x2):
+                    for y in range(y1, y2):
+                        total += 1
+
+                print("Lamp: X: {} Y: {}, X2: {} Y2:{} Total: {}". format(x1,y1,x2,y2, total))
+
+            if (entry['classTitle'] == 'heating/cooling system'):
+                points = entry['points']
+                exterior = (points['exterior'])
+                x1 = exterior[0][0]
+                y1 = exterior[0][1]
+                x2 = exterior[1][0]
+                y2 = exterior[1][1]
+
+                total = 0
+                for x in range(x1, x2):
+                    for y in range(y1, y2):
+                        total += 1
+
+                print("Heating and Cooling: X: {} Y: {}, X2: {} Y2:{} Total: {}".format(x1, y1, x2, y2, total))
+
+
 def loadCSVData(filePath):
     '''
     This function will take the go through each file ending in .csv within the folder and gather the emissivity and atmosphere temperature.
@@ -47,7 +106,7 @@ def loadCSVData(filePath):
     :param filePath: Path to the folder containing .csv files
     :return: None.
     '''
-    global emissivity, atmosphere_temperature, pixil_temperature
+    global emissivity, atmosphere_temperature, pixil_temperature, wind_speed
     for file in os.listdir(filePath): #going through each file in the directory passed
         if(file.endswith(".csv")): #Check to ignore all non-csv files
             path = filePath + "/" + file
@@ -105,8 +164,7 @@ def u_value_calculation(emissivity, atmosphere, wind_speed, indoor_temperature, 
     return(numerator/denominator)
 
 def main():
-    loadData()
-    loadCSVData(filePath)
+    loadJSONData(filePath="")
 
 if __name__ == "__main__":
     main()
