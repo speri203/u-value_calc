@@ -106,18 +106,23 @@ def loadJSONData(filePath, jsonFilePath):
 
                                 # TODO: Writing back to CSV the u-values held in the list named u_value
                                 total = 0
+                                temperature = 0
                                 for x in range(x1, x2):
                                     for y in range(y1, y2):
                                         # u-value now holds the values of each pixel
                                         u_value = u_value_calculation(emissivity, atmosphere_temperature,
                                                                                   wind_speed, indoor_temperature,
                                                                                   (pixil_temperature[x][y]))
+                                        temperature = temperature + float(pixil_temperature[x][y])
+                                        if(fileName == 'DJI_0011.csv'):
+                                            print("Temp: {}".format(pixil_temperature[323][0]))
                                         u_values.append(u_value)
                                         total = total + u_value
                                         # print("x: {}, y: {}, value: {}".format(x, y, u_value))
                                 #Calculate average
                                 average = total / ((x2-x1) * (y2-y1))
-                                print("fileName: {} Window Av. U value: {}".format(json_file_name,average))
+                                avtemp = temperature / ((x2-x1) * (y2-y1))
+                                print("fileName: {} Window Av. U value: {} Av. temp: {}".format(json_file_name,average,avtemp))
 
                     if (entry['classTitle'] == 'LAMP'):
                         points = entry['points']
@@ -291,6 +296,8 @@ def loadCSVData(filePath):
     :return: None.
     '''
     global emissivity, atmosphere_temperature, pixil_temperature, wind_speed
+    total = 0
+    average = 0
     for file in os.listdir(filePath): #going through each file in the directory passed
         if(file.endswith(".csv")): #Check to ignore all non-csv files
             path = filePath + "/" + file
@@ -313,14 +320,16 @@ def loadCSVData(filePath):
 
             #Iterating through each pixel and calculating u-values
 
+            counter = 0
             #TODO: Writing back to CSV the u-values held in the list named u_value
             for x in range(512):
                 for y in range(640):
                     # u-value now holds the values of each pixel
                     u_value = u_value_calculation(emissivity, atmosphere_temperature, wind_speed, indoor_temperature, (pixil_temperature[x][y]))
                     u_values.append(u_value)
-                    #print("x: {}, y: {}, value: {}".format(x, y, u_value))
-
+            #print("Average temp is: {}".format((total/(512*640))))
+            #total = 0
+            #average = 0
             for z in enumerate(u_values):
                  print(z)
 
@@ -338,11 +347,11 @@ def u_value_calculation(emissivity, atmosphere, wind_speed, indoor_temperature, 
     Ev = emissivity
     sigma = 5.67 #Constant
     Tw = kelvinConvert(pixil_temperature)
-    Tout = atmosphere
+    Tout = kelvinConvert(8)#atmosphere
     v = wind_speed
     Tin = indoor_temperature
 
-    numerator = Ev * (sigma * (((Tw/100)**4) - ((Tout/100) ** 4))) + 3.805 * (v * (Tw - Tout))
+    numerator = Ev * (sigma * (((Tw/100)**4) - ((Tout/100) ** 4))) + 3.8054 * (v * (Tw - Tout))
     denominator = Tin - Tout
 
     return(numerator/denominator)
@@ -351,6 +360,7 @@ def main():
 
     loadData()
     loadJSONData(filePath, jsonFilePath)
+    #loadCSVData(filePath)
 
 if __name__ == "__main__":
     main()
