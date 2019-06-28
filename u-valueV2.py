@@ -1,3 +1,14 @@
+'''
+This script is meant to estimate u_values a set of 4 equations. This script is meant to go through a JSON file holding coordinates
+of annotated objects found within a thermal picture. Once objects have been found their coordinates are noted down and checked for
+pixel thermal value found within a similarly named CSV file (ex. DJI_0000.jpg.json and DJI_0000.csv). Averages are calculated for these
+objects and returned to the screen. This script is meant to be autonomous, meaning the folder containing the JSON files and the folder
+containing CSV files are needed to be passed in and the script will go through all files in the specified directories. This script has
+FIVE commandline arguements. The script is exected as follows "python3 u-valueV2.py [JSON directory] [CSV directory] [indoor_temp] [outdoor_temp] [wind_speed]"
+Units are in Kelvin and m/s. NOTE: THIS SCRIPT IS NOT OPTOMIZED FULLY. EACH TIME AN OBJECT IS FOUND WITHIN JSON FILE THE CSV FILE IS OPENED TO FIND THE LOCATION
+TO CALCULATE U-VALUE. THE CSV FILE CAN BE OPEN MANY MANY TIMES PER JSON FILE. A SOLUTION WHERE THE CSV FILE NEEDS TO BE OPENED ONLY ONCE PER IMAGE WOULD BE BENEFICIAL
+'''
+
 import os
 import csv
 import sys
@@ -6,12 +17,12 @@ import numpy as np
 from skimage import draw #Used to calculate points within a polygon
 
 #Global variables to hold data that is mutual to whole test dataset
+#Essentially arguements taken in by commandline and are similar for all images within directory
 wind_speed = 0
 inside_temperature = 0
 outside_temperature = 0
 csvFilePath = ''
 jsonFilePath = ''
-
 
 def kelvinConvert(x):
     '''
@@ -45,6 +56,7 @@ def parseJSON(jsonFilePath):
     From there these values are passed to the CSV function to actually calculate the u-value and average it
     for those objects
     :param jsonFilePath: Path to the folder that holds json files.
+    NOTE!!!!!!! JSON FILE CONTAINS COORDINATES IN Y,X FORM NOT X,Y
     '''
     for jsonFile in os.listdir(jsonFilePath): #get the names of all files within the directory
         if(jsonFile.endswith(".json")): #makeing sure file ends in .json extension
@@ -104,13 +116,13 @@ def parseJSON(jsonFilePath):
                         # Find all points within polygon
                         r = np.array([y1, y2, y3, y4])
                         c = np.array([x1, x2, x3, x4])
-                        x_axis, y_axis = draw.polygon(r, c)
+                        x_axis, y_axis = draw.polygon(r, c) # Y_AXIS HOLDS X VALUES AND X_AXIS HOLDS Y VALUES
 
                         # Check to see if csv file exists
                         for csvFiles in os.listdir(csvFilePath):
                             csvFiles = csvFiles.split('.')
                             if (csvFiles[0] == csvFileName[0]):
-                                average_u_value = parseCSVPolygon(csvFilePath, csvFileName[0], x_axis, y_axis)
+                                average_u_value = parseCSVPolygon(csvFilePath, csvFileName[0], x_axis, y_axis) # Y_AXIS HOLDS X VALUES AND X_AXIS HOLDS Y VALUES
                                 print("Door Av. {} {}".format(average_u_value, jsonFile))
                             else:
                                 continue
@@ -128,7 +140,6 @@ def parseCSVRectangle(csvFilePath, fileName, x1, y1, x2, y2):
     :return: Returns the average u value for the object
     '''
     emissivity = 0
-    total_u_value = 0
     pixel_temperature = []
     average = 0
     total = 0
@@ -155,21 +166,24 @@ def parseCSVRectangle(csvFilePath, fileName, x1, y1, x2, y2):
             total += u
             #print("x: {} y: {} u: {}".format(x, y, u))
     average = total / ((x2-x1)*(y2-y1))
-    return average
+
+    #WRITE EQUATION 1 HERE
+
+    #WRITE EQUATION 2 HERE
+
+    #WRITE EQUATION 3 HERE
+    return average #TODO: UPDATE THE RETURNED VARIABLE TO BE A LIST OF AVERAGES AND NOT JUST ONE VARIABLE
 
 def parseCSVPolygon(csvFilePath, fileName, x, y):
     '''
     Parses though CSV file looking for rectangle marked objects and finds the average u-value of the object
     :param csvFilePath: Path to the directory holding csv files
     :param fileName: Name of the csv file
-    :param x1: X Coord
-    :param y1: Y Coord
-    :param x2: X Coord
-    :param y2: Y Coord
+    :param Y: Holds the X coordinates
+    :param X: holds the Y coordinates
     :return: Returns the average u value for the object
     '''
     emissivity = 0
-    total_u_value = 0
     pixel_temperature = []
     average = 0
     total = 0
@@ -192,7 +206,7 @@ def parseCSVPolygon(csvFilePath, fileName, x, y):
 
     #TODO: Figure out how to calculate the doors u-value (or Polygons)
     for item in range(len(y)):
-        total += u_value_calculation(emissivity, pixel_temperature[y[item]][x[item]])
+        total += u_value_calculation(emissivity, pixel_temperature[y[item]][x[item]]) #In the JSON order is y,x not x,y
     average = total / (len(x) * len(y))
     return average
 
@@ -220,6 +234,29 @@ def u_value_calculation(emissivity, pixel_temperature):
     denominator = Tin - Tout
 
     return(numerator/denominator)
+
+def u_value_estimation_eq1(emissivity, pixel_temperature):
+    '''
+    This function is supposed to estimate the U-value using the first equation. This function will work much the same way as u_value_calculation
+    and will return the u_value estimate at that pixel
+    :param emissivity: Emissivity fetched from CSV
+    :param pixel_temperature: Pixel temperature passed in by the parseCSVRectangle or parseCSVPolygon functions
+    :return: u_value estimate for the pixel values
+    '''
+
+    global outside_temperature, inside_temperature
+
+    E = emissivity
+    sigma = 5.67
+    Ts = kelvinConvert(pixel_temperature)
+    Tref = kelvinConvert(outside_temperature)
+    Tai = kelvinConvert(inside_temperature)
+    Ac = 1.31 * (((Ts - Tai) ** (1/4)) / 2) #2 is supposed to be length of building face actually
+
+    numerator = (4 * E * sigma(((Ts/100) ** 4) - ((Tref/100) ** 4)) + Ac * (Ts - Tai))
+    denominator = (Tai - Tref)
+
+    return (numerator / denominator)
 
 def main():
     loadData()
