@@ -15,6 +15,7 @@ import sys
 import json
 import numpy as np
 from skimage import draw #Used to calculate points within a polygon
+import cmath
 
 #Global variables to hold data that is mutual to whole test dataset
 #Essentially arguements taken in by commandline and are similar for all images within directory
@@ -79,7 +80,7 @@ def parseJSON(jsonFilePath):
                             csvFiles = csvFiles.split('.')
                             if(csvFiles[0] ==csvFileName[0]):
                                 average_u_value = parseCSVRectangle(csvFilePath, csvFileName[0], x1, y1, x2, y2)
-                                print("Window Av. {} {}".format(average_u_value, jsonFile))
+                                print("Window Av. {} | Eq1: {} | Eq2: {} | Eq3: {} | File: {}".format(average_u_value[0],average_u_value[1].real,average_u_value[2].real ,average_u_value[3].real, jsonFile))
                             else:
                                 continue
                     if (entry['classTitle'] == 'LAMP'):
@@ -96,7 +97,7 @@ def parseJSON(jsonFilePath):
                             csvFiles = csvFiles.split('.')
                             if (csvFiles[0] == csvFileName[0]):
                                 average_u_value = parseCSVRectangle(csvFilePath, csvFileName[0], x1, y1, x2, y2)
-                                print("LAMP Av. {}".format(average_u_value))
+                                print("LAMP Av. {} | Eq1: {} | Eq2: {} | Eq3: {} | File: {}".format(average_u_value[0], average_u_value[1].real, average_u_value[2].real, average_u_value[3].real, jsonFile))
                             else:
                                 continue
 
@@ -123,7 +124,8 @@ def parseJSON(jsonFilePath):
                             csvFiles = csvFiles.split('.')
                             if (csvFiles[0] == csvFileName[0]):
                                 average_u_value = parseCSVPolygon(csvFilePath, csvFileName[0], x_axis, y_axis) # Y_AXIS HOLDS X VALUES AND X_AXIS HOLDS Y VALUES
-                                print("Door Av. {} {}".format(average_u_value, jsonFile))
+                                print("Door Av. {} | Eq1:{} | Eq2: {} | Eq3: {} | File: {}".format(average_u_value[0],average_u_value[1].real, average_u_value[2].real,
+                                                                                         average_u_value[3].real, jsonFile))
                             else:
                                 continue
                         #print("File: {} x: {} y: {} x:{} y:{}".format(jsonFile, x1, y1, x2, y2))
@@ -142,6 +144,11 @@ def parseCSVRectangle(csvFilePath, fileName, x1, y1, x2, y2):
     emissivity = 0
     pixel_temperature = []
     average = 0
+    average2 = 0
+    average_u_values = []
+    total2 = 0
+    total3 = 0
+    total4 = 0
     total = 0
 
     fileName += ".csv"
@@ -163,16 +170,24 @@ def parseCSVRectangle(csvFilePath, fileName, x1, y1, x2, y2):
     for x in range(x1, x2): #JSON file has x and y flipped for exterior points
         for y in range(y1, y2):
             u = u_value_calculation(emissivity, pixel_temperature[x][y])
+            u2 = u_value_estimation_eq1(emissivity, pixel_temperature[x][y])
+            u3 = u_value_estimation_eq2(emissivity, pixel_temperature[x][y])
+            u4 = u_value_estimation_eq3(emissivity, pixel_temperature[x][y])
             total += u
+            total2 += u2
+            total3 += u3
+            total4 += u4
             #print("x: {} y: {} u: {}".format(x, y, u))
     average = total / ((x2-x1)*(y2-y1))
+    average2 = total2 / ((x2-x1)*(y2-y1))
+    average3 = total3 / ((x2-x1)*(y2-y1))
+    average4 = total4 / ((x2-x1)*(y2-y1))
+    average_u_values.append(average)
+    average_u_values.append(average2)
+    average_u_values.append(average3)
+    average_u_values.append(average4)
 
-    #WRITE EQUATION 1 HERE
-
-    #WRITE EQUATION 2 HERE
-
-    #WRITE EQUATION 3 HERE
-    return average #TODO: UPDATE THE RETURNED VARIABLE TO BE A LIST OF AVERAGES AND NOT JUST ONE VARIABLE
+    return average_u_values #TODO: UPDATE THE RETURNED VARIABLE TO BE A LIST OF AVERAGES AND NOT JUST ONE VARIABLE
 
 def parseCSVPolygon(csvFilePath, fileName, x, y):
     '''
@@ -187,6 +202,10 @@ def parseCSVPolygon(csvFilePath, fileName, x, y):
     pixel_temperature = []
     average = 0
     total = 0
+    total2 = 0 #For u_value_eq1 function
+    total3 = 0
+    total4 = 0
+    average_values_list = []
 
     fileName += ".csv"
     path = csvFilePath + '/' + fileName
@@ -207,8 +226,19 @@ def parseCSVPolygon(csvFilePath, fileName, x, y):
     #TODO: Figure out how to calculate the doors u-value (or Polygons)
     for item in range(len(y)):
         total += u_value_calculation(emissivity, pixel_temperature[y[item]][x[item]]) #In the JSON order is y,x not x,y
+        total2 += u_value_estimation_eq1(emissivity, pixel_temperature[y[item]][x[item]]) #In the JSON order is y,x not x,y
+        total3 += u_value_estimation_eq2(emissivity, pixel_temperature[y[item]][x[item]])
+        total4 += u_value_estimation_eq3(emissivity,pixel_temperature[y[item]][x[item]])
     average = total / (len(x) * len(y))
-    return average
+    average_values_list.append(average)
+    average = total2 / (len(x) * len(y))
+    average_values_list.append(average)
+    average = total3 / (len(x) * len(y))
+    average_values_list.append(average)
+    average = total4 /(len(x) * len(y))
+    average_values_list.append(average)
+
+    return average_values_list
 
 def u_value_calculation(emissivity, pixel_temperature):
     '''
@@ -251,13 +281,53 @@ def u_value_estimation_eq1(emissivity, pixel_temperature):
     Ts = kelvinConvert(pixel_temperature)
     Tref = kelvinConvert(outside_temperature)
     Tai = kelvinConvert(inside_temperature)
-    Ac = 1.31 * (((Ts - Tai) ** (1/4)) / 2) #2 is supposed to be length of building face actually
+    L = 15.24 #height is 50 feet for twamley
+    Ac = 1.365 * (((Ts - Tref) ** (1/4)) / L) #2 is supposed to be length of building face actually
 
-    numerator = (4 * E * sigma(((Ts/100) ** 4) - ((Tref/100) ** 4)) + Ac * (Ts - Tai))
+    numerator = (4 * E * (sigma * (((Ts/100) ** 4) - ((Tref/100) ** 4))) + Ac * (Ts - Tref))
     denominator = (Tai - Tref)
 
-    return (numerator / denominator)
+    return (numerator/denominator)
 
+def u_value_estimation_eq2(emissivity, pixel_temperatures):
+
+    global outside_temperature, inside_temperature
+
+    E = emissivity
+    sigma = 5.67
+    Ts = kelvinConvert(pixel_temperatures)
+    Tref = kelvinConvert(outside_temperature)
+    Tae = kelvinConvert(outside_temperature)
+    Ta = kelvinConvert(outside_temperature)
+    Tai = kelvinConvert(inside_temperature)
+    L = 15.24  # height is 50 feet for twamley
+    Ac = 1.365 * (((Ts - Tref) ** (1/4)) / L) #2 is supposed to be length of building face actually
+
+    numerator = (4 * E * (sigma * ((Ts/100) ** 3) * ((Ts/100) - (Tref/100))) + Ac * (Ts - Tref
+                                                                                     ))
+    denominator = (Tai - Tae)
+
+    return(numerator/denominator)
+
+def u_value_estimation_eq3(emissivity, pixel_temperatures):
+
+    global outside_temperature, inside_temperature
+
+    E = emissivity
+    sigma = 5.67
+    Ts = kelvinConvert(pixel_temperatures)
+    Tref = kelvinConvert(outside_temperature)
+    Tae = kelvinConvert(outside_temperature)
+    Ta = kelvinConvert(outside_temperature)
+    Tai = kelvinConvert(inside_temperature)
+    L = 15.24  # height is 50 feet for twamley
+    Ac = 1.365 * (((Ts - Tref) ** (1/4)) / L) #2 is supposed to be length of building face actually
+    Tm = (Ts + Tref) / 2
+
+    numerator = (4 * E * sigma * ((Tm/100) ** 3) * ((Ts/100) - (Tref/100)) + Ac * (Ts - Tref))
+    denominator = (Tai - Tae)
+
+    return(numerator/denominator)
 def main():
     loadData()
     parseJSON(jsonFilePath)
