@@ -80,7 +80,8 @@ def parseJSON(jsonFilePath):
                             csvFiles = csvFiles.split('.')
                             if(csvFiles[0] ==csvFileName[0]):
                                 average_u_value = parseCSVRectangle(csvFilePath, csvFileName[0], x1, y1, x2, y2)
-                                print("Window Av. {} | Eq1: {} | Eq2: {} | Eq3: {} | File: {}".format(average_u_value[0],average_u_value[1].real,average_u_value[2].real ,average_u_value[3].real, jsonFile))
+                                print("Window Av. {} | Eq1: {} | Eq2: {} | Eq3: {} | File: {} | AvCost: {} CostEq1: {} | CostEq2: {} | CostEq3: {}".format(average_u_value[0],average_u_value[1].real,average_u_value[2].real ,average_u_value[3].real, jsonFile, costFunction(average_u_value[0]),costFunction(average_u_value[1].real), costFunction(average_u_value[2].real), costFunction(average_u_value[3].real)))
+                                #print("Window Above Coordinates: x:{} y:{} x2:{}, y2: {}".format(x1, y1, x2, y2))
                             else:
                                 continue
                     if (entry['classTitle'] == 'LAMP'):
@@ -97,7 +98,8 @@ def parseJSON(jsonFilePath):
                             csvFiles = csvFiles.split('.')
                             if (csvFiles[0] == csvFileName[0]):
                                 average_u_value = parseCSVRectangle(csvFilePath, csvFileName[0], x1, y1, x2, y2)
-                                print("LAMP Av. {} | Eq1: {} | Eq2: {} | Eq3: {} | File: {}".format(average_u_value[0], average_u_value[1].real, average_u_value[2].real, average_u_value[3].real, jsonFile))
+                                print("LAMP Av. {} | Eq1: {} | Eq2: {} | Eq3: {} | File: {} | AvCost: {} CostEq1: {} | CostEq2: {} | CostEq3: {}".format(average_u_value[0], average_u_value[1].real, average_u_value[2].real, average_u_value[3].real, jsonFile, costFunction(average_u_value[0]),costFunction(average_u_value[1].real), costFunction(average_u_value[2].real), costFunction(average_u_value[3].real)))
+                                #print("Window Above Coordinates: x:{} y:{} x2:{}, y2: {}".format(x1, y1, x2, y2))
                             else:
                                 continue
 
@@ -124,8 +126,66 @@ def parseJSON(jsonFilePath):
                             csvFiles = csvFiles.split('.')
                             if (csvFiles[0] == csvFileName[0]):
                                 average_u_value = parseCSVPolygon(csvFilePath, csvFileName[0], x_axis, y_axis) # Y_AXIS HOLDS X VALUES AND X_AXIS HOLDS Y VALUES
-                                print("Door Av. {} | Eq1:{} | Eq2: {} | Eq3: {} | File: {}".format(average_u_value[0],average_u_value[1].real, average_u_value[2].real,
-                                                                                         average_u_value[3].real, jsonFile))
+                                print("Door Av. {} | Eq1:{} | Eq2: {} | Eq3: {} | File: {} | AvCost: {} CostEq1: {} | CostEq2: {} | CostEq3: {}".format(average_u_value[0],average_u_value[1].real, average_u_value[2].real,
+                                                                                         average_u_value[3].real, jsonFile, costFunction(average_u_value[0]),costFunction(average_u_value[1].real), costFunction(average_u_value[2].real), costFunction(average_u_value[3].real)))
+                            else:
+                                continue
+                        #print("File: {} x: {} y: {} x:{} y:{}".format(jsonFile, x1, y1, x2, y2))
+
+                    if (entry['classTitle'] == 'Facet'):
+                        x_values = []
+                        y_values = []
+                        points = entry['points']  # Fetch the points attribute
+                        exterior = (points['exterior'])  # Y and X are swapped within the json file
+                        for i,coordinate in enumerate(exterior):
+                            #print("{},{}".format(exterior[i][0], exterior[i][1]))
+                            y_values.append(exterior[i][0])
+                            x_values.append(exterior[i][1])
+                        csvFileName = jsonFile.split('.')
+
+                        # Find all points within polygon
+                        r = np.array(y_values)
+                        c = np.array(x_values)
+                        x_axis, y_axis = draw.polygon(r, c) # Y_AXIS HOLDS X VALUES AND X_AXIS HOLDS Y VALUES
+                        #print(len(y_axis))
+                        #print(len(x_axis))
+
+                        # Check to see if csv file exists
+                        for csvFiles in os.listdir(csvFilePath):
+                            csvFiles = csvFiles.split('.')
+                            if (csvFiles[0] == csvFileName[0]):
+                                average_u_value = parseCSVPolygon(csvFilePath, csvFileName[0], x_axis, y_axis) # Y_AXIS HOLDS X VALUES AND X_AXIS HOLDS Y VALUES
+                                print("Face Av. {} | Eq1:{} | Eq2: {} | Eq3: {} | File: {} | AvCost: {} CostEq1: {} | CostEq2: {} | CostEq3: {}".format(average_u_value[0],average_u_value[1].real, average_u_value[2].real,
+                                                                                         average_u_value[3].real, jsonFile, costFunction(average_u_value[0]),costFunction(average_u_value[1].real), costFunction(average_u_value[2].real), costFunction(average_u_value[3].real)))
+                            else:
+                                continue
+                        #print("File: {} x: {} y: {} x:{} y:{}".format(jsonFile, x1, y1, x2, y2))
+
+                    if (entry['classTitle'] == 'ROOF'):
+                        x_values = []
+                        y_values = []
+                        points = entry['points']  # Fetch the points attribute
+                        exterior = (points['exterior'])  # Y and X are swapped within the json file
+                        for i,coordinate in enumerate(exterior):
+                            #print("{},{}".format(exterior[i][0], exterior[i][1]))
+                            y_values.append(exterior[i][0])
+                            x_values.append(exterior[i][1])
+                        csvFileName = jsonFile.split('.')
+
+                        # Find all points within polygon
+                        r = np.array(y_values)
+                        c = np.array(x_values)
+                        x_axis, y_axis = draw.polygon(r, c) # Y_AXIS HOLDS X VALUES AND X_AXIS HOLDS Y VALUES
+                        #print(len(y_axis))
+                        #print(len(x_axis))
+
+                        # Check to see if csv file exists
+                        for csvFiles in os.listdir(csvFilePath):
+                            csvFiles = csvFiles.split('.')
+                            if (csvFiles[0] == csvFileName[0]):
+                                average_u_value = parseCSVPolygon(csvFilePath, csvFileName[0], x_axis, y_axis) # Y_AXIS HOLDS X VALUES AND X_AXIS HOLDS Y VALUES
+                                print("Roof Av. {} | Eq1:{} | Eq2: {} | Eq3: {} | File: {} | AvCost: {} CostEq1: {} | CostEq2: {} | CostEq3: {}".format(average_u_value[0],average_u_value[1].real, average_u_value[2].real,
+                                                                                         average_u_value[3].real, jsonFile, costFunction(average_u_value[0]),costFunction(average_u_value[1].real), costFunction(average_u_value[2].real), costFunction(average_u_value[3].real)))
                             else:
                                 continue
                         #print("File: {} x: {} y: {} x:{} y:{}".format(jsonFile, x1, y1, x2, y2))
@@ -194,8 +254,8 @@ def parseCSVPolygon(csvFilePath, fileName, x, y):
     Parses though CSV file looking for rectangle marked objects and finds the average u-value of the object
     :param csvFilePath: Path to the directory holding csv files
     :param fileName: Name of the csv file
-    :param Y: Holds the X coordinates
-    :param X: holds the Y coordinates
+    :param Y: Holds the X coordinates array
+    :param X: holds the Y coordinates array
     :return: Returns the average u value for the object
     '''
     emissivity = 0
@@ -229,13 +289,13 @@ def parseCSVPolygon(csvFilePath, fileName, x, y):
         total2 += u_value_estimation_eq1(emissivity, pixel_temperature[y[item]][x[item]]) #In the JSON order is y,x not x,y
         total3 += u_value_estimation_eq2(emissivity, pixel_temperature[y[item]][x[item]])
         total4 += u_value_estimation_eq3(emissivity,pixel_temperature[y[item]][x[item]])
-    average = total / (len(x) * len(y))
+    average = total / (len(x))
     average_values_list.append(average)
-    average = total2 / (len(x) * len(y))
+    average = total2 / (len(x))
     average_values_list.append(average)
-    average = total3 / (len(x) * len(y))
+    average = total3 / (len(x))
     average_values_list.append(average)
-    average = total4 /(len(x) * len(y))
+    average = total4 /(len(x))
     average_values_list.append(average)
 
     return average_values_list
@@ -328,6 +388,16 @@ def u_value_estimation_eq3(emissivity, pixel_temperatures):
     denominator = (Tai - Tae)
 
     return(numerator/denominator)
+
+def costFunction(u_value):
+    HDD_constant = 9440
+    qa = 86400 * HDD_constant * (u_value)
+    cf = 0.1059
+    Hu = 3.599 * (10 ** 6)
+    es = 0.99
+    return (qa * cf) / (Hu * es)
+
+
 def main():
     loadData()
     parseJSON(jsonFilePath)
