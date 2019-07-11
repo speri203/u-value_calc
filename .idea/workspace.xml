@@ -16,11 +16,20 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/u-valueV2.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="150">
-              <caret line="138" column="99" selection-start-line="138" selection-start-column="99" selection-end-line="138" selection-end-column="99" />
+            <state relative-caret-position="579">
+              <caret line="392" column="26" selection-start-line="392" selection-start-column="26" selection-end-line="392" selection-end-column="26" />
               <folding>
                 <element signature="e#1165#1174#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/roof">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="269">
+              <caret line="39" column="36" selection-start-line="39" selection-start-column="36" selection-end-line="40" selection-end-column="10" />
             </state>
           </provider>
         </entry>
@@ -38,6 +47,7 @@
     <findStrings>
       <find>pixil</find>
       <find>u_value</find>
+      <find>ROOF</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -61,8 +71,18 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="ProjectPane" />
       <pane id="Scope" />
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="u-value_calc" type="b2602c69:ProjectViewProjectNode" />
+              <item name="u-value_calc" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -71,6 +91,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -112,17 +133,17 @@
       <workItem from="1562090309211" duration="97000" />
       <workItem from="1562695047712" duration="2928000" />
       <workItem from="1562702714910" duration="2167000" />
+      <workItem from="1562784062875" duration="2639000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="40333000" />
+    <option name="totallyTimeSpent" value="43019000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1680" height="1050" extended-state="0" />
-    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.1929182" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.1953602" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -174,10 +195,17 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/roof">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="269">
+          <caret line="39" column="36" selection-start-line="39" selection-start-column="36" selection-end-line="40" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/u-valueV2.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="138" column="99" selection-start-line="138" selection-start-column="99" selection-end-line="138" selection-end-column="99" />
+        <state relative-caret-position="579">
+          <caret line="392" column="26" selection-start-line="392" selection-start-column="26" selection-end-line="392" selection-end-column="26" />
           <folding>
             <element signature="e#1165#1174#0" expanded="true" />
           </folding>

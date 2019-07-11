@@ -390,12 +390,12 @@ def u_value_estimation_eq3(emissivity, pixel_temperatures):
     return(numerator/denominator)
 
 def costFunction(u_value):
-    HDD_constant = 9440
+    HDD_constant = 568.706
     qa = 86400 * HDD_constant * (u_value)
-    cf = 0.1059
+    cf = 0.0655
     Hu = 3.599 * (10 ** 6)
     es = 0.99
-    return (qa * cf) / (Hu * es)
+    return abs(((qa * cf) / (Hu * es)))
 
 
 def main():
