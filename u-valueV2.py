@@ -15,6 +15,7 @@ import sys
 import json
 import numpy as np
 from skimage import draw #Used to calculate points within a polygon
+from tabulate import tabulate
 import cmath
 
 #Global variables to hold data that is mutual to whole test dataset
@@ -59,10 +60,14 @@ def parseJSON(jsonFilePath):
     :param jsonFilePath: Path to the folder that holds json files.
     NOTE!!!!!!! JSON FILE CONTAINS COORDINATES IN Y,X FORM NOT X,Y
     '''
+
+    global inside_temperature, outside_temperature, wind_speed
     for jsonFile in os.listdir(jsonFilePath): #get the names of all files within the directory
         if(jsonFile.endswith(".json")): #makeing sure file ends in .json extension
             #Add filename to the filepath
             path = jsonFilePath + '/' + jsonFile
+            print("Filename: {}, Outside Temperature: {}, Inside Temperature: {}, Windspeed: {}".format(jsonFile,outside_temperature,inside_temperature,wind_speed))
+
             with open(path) as read_json: #read_json holds the object of the file
                 data = json.load(read_json)
                 for entry in data['objects']:  # Entry holds each dictionary between each description tags
@@ -80,7 +85,9 @@ def parseJSON(jsonFilePath):
                             csvFiles = csvFiles.split('.')
                             if(csvFiles[0] ==csvFileName[0]):
                                 average_u_value = parseCSVRectangle(csvFilePath, csvFileName[0], x1, y1, x2, y2)
-                                print("Window Av. {} | Eq1: {} | Eq2: {} | Eq3: {} | File: {} | AvCost: {} CostEq1: {} | CostEq2: {} | CostEq3: {}".format(average_u_value[0],average_u_value[1].real,average_u_value[2].real ,average_u_value[3].real, jsonFile, costFunction(average_u_value[0]),costFunction(average_u_value[1].real), costFunction(average_u_value[2].real), costFunction(average_u_value[3].real)))
+                                print(tabulate([['Window Av: ', '{:.4f}'], ['Eq2: ', '{:.4f}'], ['Eq3: ', '{:.4f}'], ['Eq4: ', '{:.4f}'], ['AvCost Eq1: ', '{:.4f}'], ['AvCost Eq2: ', '{:.4f}'], ['AvCost Eq3: ', '{:.4f}'], ['AvCost Eq4: ', '{:.4f}']], tablefmt='orgtbl').format(average_u_value[0],average_u_value[1].real,average_u_value[2].real ,average_u_value[3].real,costFunction(average_u_value[0]),costFunction(average_u_value[1].real), costFunction(average_u_value[2].real), costFunction(average_u_value[3].real)))
+                                print()
+                                #print("Window Av {:.4f} | Eq1: {:.4f} | Eq2: {:.4f} | Eq3: {:.4f} | File: {} | AvCost: {:.4f} CostEq1: {:.4f} | CostEq2: {:.4f} | CostEq3: {:.4f}".format(average_u_value[0],average_u_value[1].real,average_u_value[2].real ,average_u_value[3].real, jsonFile, costFunction(average_u_value[0]),costFunction(average_u_value[1].real), costFunction(average_u_value[2].real), costFunction(average_u_value[3].real)))
                                 #print("Window Above Coordinates: x:{} y:{} x2:{}, y2: {}".format(x1, y1, x2, y2))
                             else:
                                 continue
@@ -98,7 +105,8 @@ def parseJSON(jsonFilePath):
                             csvFiles = csvFiles.split('.')
                             if (csvFiles[0] == csvFileName[0]):
                                 average_u_value = parseCSVRectangle(csvFilePath, csvFileName[0], x1, y1, x2, y2)
-                                print("LAMP Av. {} | Eq1: {} | Eq2: {} | Eq3: {} | File: {} | AvCost: {} CostEq1: {} | CostEq2: {} | CostEq3: {}".format(average_u_value[0], average_u_value[1].real, average_u_value[2].real, average_u_value[3].real, jsonFile, costFunction(average_u_value[0]),costFunction(average_u_value[1].real), costFunction(average_u_value[2].real), costFunction(average_u_value[3].real)))
+                                print(tabulate([['Lamp Av: ', '{:.4f}'], ['Eq1: ', '{:.4f}'], ['Eq2: ', '{:.4f}'], ['Eq3: ', '{:.4f}'], ['AvCost Eq1: ', '{:.4f}'], ['AvCost Eq2: ', '{:.4f}'], ['AvCost Eq3: ', '{:.4f}'], ['AvCost Eq4: ', '{:.4f}']], tablefmt='orgtbl').format(average_u_value[0],average_u_value[1].real,average_u_value[2].real ,average_u_value[3].real,costFunction(average_u_value[0]),costFunction(average_u_value[1].real), costFunction(average_u_value[2].real), costFunction(average_u_value[3].real)))
+                                print()
                                 #print("Window Above Coordinates: x:{} y:{} x2:{}, y2: {}".format(x1, y1, x2, y2))
                             else:
                                 continue
@@ -126,8 +134,10 @@ def parseJSON(jsonFilePath):
                             csvFiles = csvFiles.split('.')
                             if (csvFiles[0] == csvFileName[0]):
                                 average_u_value = parseCSVPolygon(csvFilePath, csvFileName[0], x_axis, y_axis) # Y_AXIS HOLDS X VALUES AND X_AXIS HOLDS Y VALUES
-                                print("Door Av. {} | Eq1:{} | Eq2: {} | Eq3: {} | File: {} | AvCost: {} CostEq1: {} | CostEq2: {} | CostEq3: {}".format(average_u_value[0],average_u_value[1].real, average_u_value[2].real,
-                                                                                         average_u_value[3].real, jsonFile, costFunction(average_u_value[0]),costFunction(average_u_value[1].real), costFunction(average_u_value[2].real), costFunction(average_u_value[3].real)))
+                                print(tabulate([['Door Av: ', '{:.4f}'], ['Eq1: ', '{:.4f}'], ['Eq2: ', '{:.4f}'], ['Eq3: ', '{:.4f}'], ['AvCost Eq1: ', '{:.4f}'], ['AvCost Eq2: ', '{:.4f}'], ['AvCost Eq3: ', '{:.4f}'], ['AvCost Eq4: ', '{:.4f}']], tablefmt='orgtbl').format(average_u_value[0],average_u_value[1].real,average_u_value[2].real ,average_u_value[3].real,costFunction(average_u_value[0]),costFunction(average_u_value[1].real), costFunction(average_u_value[2].real), costFunction(average_u_value[3].real)))
+                                print()
+                                #print("Door Av. {:.4f} | Eq1:{:.4f} | Eq2: {:.4f} | Eq3: {:.4f} | File: {} | AvCost: {:.4f} CostEq1: {:.4f} | CostEq2: {:.4f} | CostEq3: {:.4f}".format(average_u_value[0],average_u_value[1].real, average_u_value[2].real,
+                                 #                                                        average_u_value[3].real, jsonFile, costFunction(average_u_value[0]),costFunction(average_u_value[1].real), costFunction(average_u_value[2].real), costFunction(average_u_value[3].real)))
                             else:
                                 continue
                         #print("File: {} x: {} y: {} x:{} y:{}".format(jsonFile, x1, y1, x2, y2))
@@ -155,8 +165,10 @@ def parseJSON(jsonFilePath):
                             csvFiles = csvFiles.split('.')
                             if (csvFiles[0] == csvFileName[0]):
                                 average_u_value = parseCSVPolygon(csvFilePath, csvFileName[0], x_axis, y_axis) # Y_AXIS HOLDS X VALUES AND X_AXIS HOLDS Y VALUES
-                                print("Face Av. {} | Eq1:{} | Eq2: {} | Eq3: {} | File: {} | AvCost: {} CostEq1: {} | CostEq2: {} | CostEq3: {}".format(average_u_value[0],average_u_value[1].real, average_u_value[2].real,
-                                                                                         average_u_value[3].real, jsonFile, costFunction(average_u_value[0]),costFunction(average_u_value[1].real), costFunction(average_u_value[2].real), costFunction(average_u_value[3].real)))
+                                print(tabulate([['Face Av: ', '{:.4f}'], ['Eq1: ', '{:.4f}'], ['Eq2: ', '{:.4f}'], ['Eq3: ', '{:.4f}'], ['AvCost Eq1: ', '{:.4f}'], ['AvCost Eq2: ', '{:.4f}'], ['AvCost Eq3: ', '{:.4f}'], ['AvCost Eq4: ', '{:.4f}']], tablefmt='orgtbl').format(average_u_value[0],average_u_value[1].real,average_u_value[2].real ,average_u_value[3].real,costFunction(average_u_value[0]),costFunction(average_u_value[1].real), costFunction(average_u_value[2].real), costFunction(average_u_value[3].real)))
+
+                                #print("Face Av. {:.4f} | Eq1:{:.4f} | Eq2: {:.4f} | Eq3: {:.4f} | File: {} | AvCost: {:.4f} CostEq1: {:.4f} | CostEq2: {:.4f} | CostEq3: {:.4f}".format(average_u_value[0],average_u_value[1].real, average_u_value[2].real,
+                                #                                                         average_u_value[3].real, jsonFile, costFunction(average_u_value[0]),costFunction(average_u_value[1].real), costFunction(average_u_value[2].real), costFunction(average_u_value[3].real)))
                             else:
                                 continue
                         #print("File: {} x: {} y: {} x:{} y:{}".format(jsonFile, x1, y1, x2, y2))
@@ -184,8 +196,9 @@ def parseJSON(jsonFilePath):
                             csvFiles = csvFiles.split('.')
                             if (csvFiles[0] == csvFileName[0]):
                                 average_u_value = parseCSVPolygon(csvFilePath, csvFileName[0], x_axis, y_axis) # Y_AXIS HOLDS X VALUES AND X_AXIS HOLDS Y VALUES
-                                print("Roof Av. {} | Eq1:{} | Eq2: {} | Eq3: {} | File: {} | AvCost: {} CostEq1: {} | CostEq2: {} | CostEq3: {}".format(average_u_value[0],average_u_value[1].real, average_u_value[2].real,
+                                print("Roof Av. {:.4f} | Eq1:{:.4f} | Eq2: {:.4f} | Eq3: {:.4f} | File: {} | AvCost: {:.4f} CostEq1: {:.4f} | CostEq2: {:.4f} | CostEq3: {:.4f}".format(average_u_value[0],average_u_value[1].real, average_u_value[2].real,
                                                                                          average_u_value[3].real, jsonFile, costFunction(average_u_value[0]),costFunction(average_u_value[1].real), costFunction(average_u_value[2].real), costFunction(average_u_value[3].real)))
+                                print()
                             else:
                                 continue
                         #print("File: {} x: {} y: {} x:{} y:{}".format(jsonFile, x1, y1, x2, y2))
@@ -222,7 +235,8 @@ def parseCSVRectangle(csvFilePath, fileName, x1, y1, x2, y2):
             else:
                 index = length - 1  # Extract the last data point in the row
             if (i == 2):
-                emissivity = float(data[index])
+                #emissivity = float(data[index])
+                emissivity = .76
                 #print(emissivity)
             if (i >= 10):
                 pixel_temperature.append(data[1:])  # Pixel temperature now holds 512 indexes. Each index
@@ -278,7 +292,8 @@ def parseCSVPolygon(csvFilePath, fileName, x, y):
             else:
                 index = length - 1  # Extract the last data point in the row
             if (i == 2):
-                emissivity = float(data[index])
+                #emissivity = float(data[index])
+                emissivity = .76
                 #print(emissivity)
             if (i >= 10):
                 pixel_temperature.append(data[1:])  # Pixel temperature now holds 512 indexes. Each index
@@ -314,13 +329,13 @@ def u_value_calculation(emissivity, pixel_temperature):
     global wind_speed, outside_temperature, inside_temperature
 
     Ev = emissivity
-    sigma = 5.67 #Constant
+    sigma = 5.67 * (10 ** -8)#Constant
     Tw = kelvinConvert(pixel_temperature)
     Tout = kelvinConvert(outside_temperature)
     v = wind_speed
     Tin = kelvinConvert(inside_temperature)
 
-    numerator = Ev * (sigma * (((Tw/100)**4) - ((Tout/100) ** 4))) + 3.8054 * (v * (Tw - Tout))
+    numerator = Ev * (sigma * (((Tw)**4) - ((Tout) ** 4))) + 3.8054 * (v * (Tw - Tout))
     denominator = Tin - Tout
 
     return(numerator/denominator)
@@ -337,14 +352,14 @@ def u_value_estimation_eq1(emissivity, pixel_temperature):
     global outside_temperature, inside_temperature
 
     E = emissivity
-    sigma = 5.67
+    sigma = 5.67 * (10 ** -8)#Constant
     Ts = kelvinConvert(pixel_temperature)
     Tref = kelvinConvert(outside_temperature)
     Tai = kelvinConvert(inside_temperature)
     L = 15.24 #height is 50 feet for twamley
     Ac = 1.365 * (((Ts - Tref) ** (1/4)) / L) #2 is supposed to be length of building face actually
 
-    numerator = (4 * E * (sigma * (((Ts/100) ** 4) - ((Tref/100) ** 4))) + Ac * (Ts - Tref))
+    numerator = (4 * E * (sigma * (((Ts) ** 4) - ((Tref) ** 4))) + Ac * (Ts - Tref))
     denominator = (Tai - Tref)
 
     return (numerator/denominator)
@@ -354,7 +369,7 @@ def u_value_estimation_eq2(emissivity, pixel_temperatures):
     global outside_temperature, inside_temperature
 
     E = emissivity
-    sigma = 5.67
+    sigma = 5.67 * (10 ** -8)#Constant
     Ts = kelvinConvert(pixel_temperatures)
     Tref = kelvinConvert(outside_temperature)
     Tae = kelvinConvert(outside_temperature)
@@ -363,8 +378,7 @@ def u_value_estimation_eq2(emissivity, pixel_temperatures):
     L = 15.24  # height is 50 feet for twamley
     Ac = 1.365 * (((Ts - Tref) ** (1/4)) / L) #2 is supposed to be length of building face actually
 
-    numerator = (4 * E * (sigma * ((Ts/100) ** 3) * ((Ts/100) - (Tref/100))) + Ac * (Ts - Tref
-                                                                                     ))
+    numerator = (4 * E * (sigma * ((Ts) ** 3) * ((Ts) - (Tref))) + Ac * (Ts - Tref))
     denominator = (Tai - Tae)
 
     return(numerator/denominator)
@@ -374,7 +388,7 @@ def u_value_estimation_eq3(emissivity, pixel_temperatures):
     global outside_temperature, inside_temperature
 
     E = emissivity
-    sigma = 5.67
+    sigma = 5.67 * (10 ** -8)#Constant
     Ts = kelvinConvert(pixel_temperatures)
     Tref = kelvinConvert(outside_temperature)
     Tae = kelvinConvert(outside_temperature)
@@ -384,7 +398,7 @@ def u_value_estimation_eq3(emissivity, pixel_temperatures):
     Ac = 1.365 * (((Ts - Tref) ** (1/4)) / L) #2 is supposed to be length of building face actually
     Tm = (Ts + Tref) / 2
 
-    numerator = (4 * E * sigma * ((Tm/100) ** 3) * ((Ts/100) - (Tref/100)) + Ac * (Ts - Tref))
+    numerator = (4 * E * sigma * ((Tm) ** 3) * ((Ts) - (Tref)) + Ac * (Ts - Tref))
     denominator = (Tai - Tae)
 
     return(numerator/denominator)
