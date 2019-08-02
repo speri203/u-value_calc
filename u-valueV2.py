@@ -16,7 +16,9 @@ import json
 import numpy as np
 from skimage import draw #Used to calculate points within a polygon
 from tabulate import tabulate
+
 import cmath
+
 
 #Global variables to hold data that is mutual to whole test dataset
 #Essentially arguements taken in by commandline and are similar for all images within directory
@@ -229,18 +231,23 @@ def parseCSVRectangle(csvFilePath, fileName, x1, y1, x2, y2):
     with open(path) as read_csv:
         csvData = csv.reader(read_csv, delimiter=',', quotechar='|')  # Seperated by comma (hence csv)
         for i, data in enumerate(csvData):  # i holds the index and increments each loop while data holds cells value
-            length = len(data)
-            if (length == 0):  # Incase the length of a row is 0 (empty cells)
-                continue
+            if(fileName.find('MWIR') != -1):
+                #This is mirage camera
+                if(i >= 8):
+                    pixel_temperature.append(data[0:])
             else:
-                index = length - 1  # Extract the last data point in the row
-            if (i == 2):
-                #emissivity = float(data[index])
-                emissivity = .76
-                #print(emissivity)
-            if (i >= 10):
-                pixel_temperature.append(data[1:])  # Pixel temperature now holds 512 indexes. Each index
-
+                length = len(data)
+                if (length == 0):  # Incase the length of a row is 0 (empty cells)
+                    continue
+                else:
+                    index = length - 1  # Extract the last data point in the row
+                if (i == 2):
+                    #emissivity = float(data[index])
+                    emissivity = .76
+                    #print(emissivity)
+                if (i >= 10):
+                    pixel_temperature.append(data[1:])  # Pixel temperature now holds 512 indexes. Each index
+    print(len(pixel_temperature))
     for x in range(x1, x2): #JSON file has x and y flipped for exterior points
         for y in range(y1, y2):
             u = u_value_calculation(emissivity, pixel_temperature[x][y])
