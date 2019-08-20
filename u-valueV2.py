@@ -401,6 +401,7 @@ def u_value_estimation_eq3(emissivity, pixel_temperatures):
     Tae = kelvinConvert(outside_temperature)
     Ta = kelvinConvert(outside_temperature)
     Tai = kelvinConvert(inside_temperature)
+    Tx = 10000
     L = 15.24  # height is 50 feet for twamley
     Ac = 1.365 * (((Ts - Tref) ** (1/4)) / L) #2 is supposed to be length of building face actually
     Tm = (Ts + Tref) / 2
